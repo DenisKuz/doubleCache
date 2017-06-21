@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,8 +19,10 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     private final File directory;
 
+    static final public int DEFAULT_fILE_STORAGE_MAX_SIZE = 6;
+
     public FileSystemCacheStorage() {
-        this(DEFAULT_MAX_SIZE);
+        this(DEFAULT_fILE_STORAGE_MAX_SIZE);
     }
 
     public FileSystemCacheStorage(final int maxSize) {

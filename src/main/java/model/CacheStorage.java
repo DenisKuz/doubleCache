@@ -1,6 +1,6 @@
 package model;
 
-interface CacheStorage<K,V> {
+public interface CacheStorage<K,V> {
 
     void save(final K key, final V value) throws StorageOverFlowException;
 

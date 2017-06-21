@@ -1,19 +1,22 @@
 package model;
 
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     private Map<K, V> data;
 
+    static public final int DEFAULT_MEMORY_MAX_SIZE = 5;
+
     public MemoryCacheStorage() {
-        this(DEFAULT_MAX_SIZE);
+        this(DEFAULT_MEMORY_MAX_SIZE);
     }
 
     public MemoryCacheStorage(int size) {
         super(size);
-        data = new LinkedHashMap<K, V>(size);
+        //data = new LinkedHashMap<>(size);
+        data = new HashMap<>(size);
     }
 
     @Override
