@@ -34,11 +34,11 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     }
 
     @Override
-    public void save(K key, V value) throws StorageOverFlowException {
-        if (isFull()) {
-            throw new StorageOverFlowException("There is no place for new element!");
+    public void save(K key, V value) {
+        if (!isFull()) {
+            //throw new StorageOverFlowException("There is no place for new element!");
+            writeToFile(value, createFile(key));
         }
-        writeToFile(value, createFile(key));
     }
 
     @Override
@@ -72,6 +72,11 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     @Override
     public boolean hasFreeMemory() {
         return getMaxSize() > getCurrentSize();
+    }
+
+    @Override
+    public V remove(K key) {
+        return null;
     }
 
     private void createDirectory() {

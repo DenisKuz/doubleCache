@@ -7,7 +7,7 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     private Map<K, V> data;
 
-    static public final int DEFAULT_MEMORY_MAX_SIZE = 5;
+    static public final int DEFAULT_MEMORY_MAX_SIZE = 3;
 
     public MemoryCacheStorage() {
         this(DEFAULT_MEMORY_MAX_SIZE);
@@ -20,20 +20,19 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     }
 
     @Override
-    public void save(K key, V value) throws StorageOverFlowException {
-        if (isFull()) {
-            throw new StorageOverFlowException("There is no place for new element!");
+    public void save(K key, V value) {
+        if (!isFull()) {
+            //throw new StorageOverFlowException("There is no place for new element!");
+            this.data.put(key, value);
         }
-        data.put(key, value);
     }
 
     @Override
-    public V retrieve(K key) throws NotFoundElementException {
-        V element = data.get(key);
-        if (element == null) {
-            throw new NotFoundElementException("there is no the element in the cache storage");
-        }
-        return element;
+    public V retrieve(K key) {
+        /*if (element == null) {
+            //throw new NotFoundElementException("there is no the element in the cache storage");
+        }*/
+        return data.get(key);
     }
 
     @Override
@@ -54,5 +53,14 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     @Override
     public boolean hasFreeMemory() {
         return getMaxSize() > getCurrentSize();
+    }
+
+    @Override
+    public V remove(final K key) {
+       return this.data.remove(key);
+    }
+
+    public Map<K,V> getData(){
+        return this.data;
     }
 }
