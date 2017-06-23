@@ -1,5 +1,7 @@
 package model;
 
+import com.rits.cloning.Cloner;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,16 +24,12 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     @Override
     public void save(K key, V value) {
         if (!isFull()) {
-            //throw new StorageOverFlowException("There is no place for new element!");
             this.data.put(key, value);
         }
     }
 
     @Override
     public V retrieve(K key) {
-        /*if (element == null) {
-            //throw new NotFoundElementException("there is no the element in the cache storage");
-        }*/
         return data.get(key);
     }
 
@@ -57,10 +55,11 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     @Override
     public V remove(final K key) {
-       return this.data.remove(key);
+        return this.data.remove(key);
     }
 
-    public Map<K,V> getData(){
-        return this.data;
+    @Override
+    public Map<K, V> getDataSet() {
+        return new Cloner().deepClone(this.data);
     }
 }

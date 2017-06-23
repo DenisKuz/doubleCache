@@ -1,5 +1,7 @@
 package model;
 
+import com.rits.cloning.Cloner;
+
 import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,9 +15,7 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     private Logger log = Logger.getLogger(FileSystemCacheStorage.class.getName());
 
-    private Map<K, String> keyMap;
-
-    private final String cacheDirectoryName;
+    private Map<K, Node> keyMap;
 
     private final File directory;
 
@@ -28,26 +28,32 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     public FileSystemCacheStorage(final int maxSize) {
         super(maxSize);
         this.keyMap = new HashMap<>(maxSize);
-        this.cacheDirectoryName = "cache" + new Date().getTime();
-        this.directory = new File(cacheDirectoryName);
+        this.directory = new File("cache" + new Date().getTime());
         createDirectory();
+    }
+
+    //access to elements of inner class form outer class
+    public static class Node {
+        private String fileName;
+        private Object rating;
+
+        public Node(String fileName, Object rating) {
+            this.fileName = fileName;
+            this.rating = rating;
+        }
     }
 
     @Override
     public void save(K key, V value) {
         if (!isFull()) {
-            //throw new StorageOverFlowException("There is no place for new element!");
+            this.keyMap.put(key, new Node((key.toString() + new Date().getTime()), ((Element) value).getRating()));
             writeToFile(value, createFile(key));
         }
     }
 
     @Override
-    public V retrieve(final K key) throws NotFoundElementException {
-        final String fileName = keyMap.get(key);
-        if (fileName != null) {
-            return readFromFile(fileName);
-        }
-        throw new NotFoundElementException("there is no the element in the cache storage");
+    public V retrieve(final K key) {
+        return readFromFile(keyMap.get(key).fileName);
     }
 
     @Override
@@ -60,7 +66,7 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
         try {
             cleanDirectory(directory);
         } catch (IOException e) {
-            log.log(Level.SEVERE, "Can not clear dirrectory");
+            log.log(Level.SEVERE, "Can not clear directory");
         }
     }
 
@@ -79,6 +85,11 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
         return null;
     }
 
+    @Override
+    public Map<K, Node> getDataSet() {
+        return new Cloner().deepClone(this.keyMap);
+    }
+
     private void createDirectory() {
         if (!this.directory.exists()) {
             if (this.directory.mkdir()) {
@@ -90,9 +101,8 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     }
 
     private File createFile(final K key) {
-        keyMap.putIfAbsent(key, key.toString() + new Date().getTime());
-        final String fileName = keyMap.get(key);
-        final File file = new File(cacheDirectoryName.concat("/").concat(fileName));
+        final String fileName = keyMap.get(key).fileName;
+        final File file = new File(directory.getName().concat("/").concat(fileName));
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -116,7 +126,7 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     }
 
     private V readFromFile(final String fileName) {
-        File file = new File(cacheDirectoryName + "/" + fileName);
+        File file = new File(directory.getName() + "/" + fileName);
         try (FileInputStream fileInputStream = new FileInputStream(file);
              ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
             return (V) objectInputStream.readObject();
