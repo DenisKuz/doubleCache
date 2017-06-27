@@ -3,49 +3,38 @@ package service;
 import model.CacheStorage;
 import model.Element;
 import model.MemoryCacheStorage;
-
-import java.util.Date;
-import java.util.Map;
-
-import static model.MemoryCacheStorage.DEFAULT_MEMORY_MAX_SIZE;
+import strategy.LRUStrategy;
+import strategy.Strategy;
 
 
 public class LRUFirstLevelCacheService<K, V> implements CacheService<K, V> {
 
-    private CacheStorage<K, Element<K, V, Date>> memoryStorage;
+    private CacheStorage<K, Element<K, V>> memoryStorage;
+    private Strategy<K> strategy;
 
-    public LRUFirstLevelCacheService(final int maxSize) {
+    public LRUFirstLevelCacheService(final int maxSize, final Strategy<K> strategy) {
         this.memoryStorage = new MemoryCacheStorage<>(maxSize);
+        this.strategy = strategy;
     }
 
+    // by default we use least recently used
     public LRUFirstLevelCacheService() {
         this.memoryStorage = new MemoryCacheStorage<>();
+        this.strategy = new LRUStrategy<>();
     }
 
     @Override
     public void put(K key, V value) {
         if (!memoryStorage.hasFreeMemory()) {
-            deleteUnwantedElement();
+            this.memoryStorage.remove(this.strategy.kickExtraElement());
         }
-        memoryStorage.save(key, new Element<>(key, value, new Date()));
+        memoryStorage.save(key, new Element<>(key, value));
     }
 
     @Override
     public V get(final K key) {
-        final Element<K, V, Date> element = this.memoryStorage.retrieve(key);
-        element.setRating(new Date());
+        final Element<K, V> element = this.memoryStorage.retrieve(key);
+        this.strategy.upDateRating(key);
         return element.getValue();
-    }
-
-    private Element<K, V, Date> deleteUnwantedElement() {
-        Element<K, V, Date> element = new Element<>(null, null, new Date());
-
-
-        for (Map.Entry<K, ?> entry : memoryStorage.getDataSet().entrySet()) {
-            if (element.getRating().compareTo(((Element<K, V, Date>)entry.getValue()).getRating()) > 0) {
-                element = (Element<K, V, Date>)entry.getValue();
-            }
-        }
-        return memoryStorage.remove(element.getKey());
     }
 }

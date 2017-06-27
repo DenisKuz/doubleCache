@@ -1,7 +1,5 @@
 package model;
 
-import java.util.Map;
-
 public interface CacheStorage<K, V> {
 
     void save(final K key, final V value);
@@ -18,5 +16,5 @@ public interface CacheStorage<K, V> {
 
     V remove(final K key);
 
-    Map<K, ?> getDataSet();
+    int getMaxSize();
 }

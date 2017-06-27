@@ -1,21 +1,18 @@
 package model;
 
-import com.rits.cloning.Cloner;
-
 import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import static org.apache.commons.io.FileUtils.cleanDirectory;
 
 public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     private Logger log = Logger.getLogger(FileSystemCacheStorage.class.getName());
 
-    private Map<K, Node> keyMap;
+    private Map<K, String> keyMap;
 
     private final File directory;
 
@@ -32,28 +29,17 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
         createDirectory();
     }
 
-    //access to elements of inner class form outer class
-    public static class Node {
-        private String fileName;
-        private Object rating;
-
-        public Node(String fileName, Object rating) {
-            this.fileName = fileName;
-            this.rating = rating;
-        }
-    }
-
     @Override
     public void save(K key, V value) {
         if (!isFull()) {
-            this.keyMap.put(key, new Node((key.toString() + new Date().getTime()), ((Element) value).getRating()));
+            this.keyMap.put(key, key.toString() + new Date().getTime());
             writeToFile(value, createFile(key));
         }
     }
 
     @Override
     public V retrieve(final K key) {
-        return readFromFile(keyMap.get(key).fileName);
+        return readFromFile(keyMap.get(key));
     }
 
     @Override
@@ -85,11 +71,6 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
         return null;
     }
 
-    @Override
-    public Map<K, Node> getDataSet() {
-        return new Cloner().deepClone(this.keyMap);
-    }
-
     private void createDirectory() {
         if (!this.directory.exists()) {
             if (this.directory.mkdir()) {
@@ -101,7 +82,7 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     }
 
     private File createFile(final K key) {
-        final String fileName = keyMap.get(key).fileName;
+        final String fileName = keyMap.get(key);
         final File file = new File(directory.getName().concat("/").concat(fileName));
         if (!file.exists()) {
             try {
@@ -135,5 +116,4 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
         }
         return null;
     }
-
 }

@@ -2,15 +2,13 @@ package model;
 
 import java.io.Serializable;
 
-public class Element<K,V,R> implements Serializable {
+public class Element<K, V> implements Serializable {
     private K key;
     private V value;
-    private R rating;
 
-    public Element(K key, V value, R rating) {
+    public Element(K key, V value) {
         this.key = key;
         this.value = value;
-        this.rating = rating;
     }
 
     public K getKey() {
@@ -19,13 +17,5 @@ public class Element<K,V,R> implements Serializable {
 
     public V getValue() {
         return value;
-    }
-
-    public R getRating() {
-        return rating;
-    }
-
-    public void setRating(R rating) {
-        this.rating = rating;
     }
 }

@@ -1,7 +1,5 @@
 package model;
 
-import com.rits.cloning.Cloner;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +15,6 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     public MemoryCacheStorage(int size) {
         super(size);
-        //data = new LinkedHashMap<>(size);
         data = new HashMap<>(size);
     }
 
@@ -56,10 +53,5 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     @Override
     public V remove(final K key) {
         return this.data.remove(key);
-    }
-
-    @Override
-    public Map<K, V> getDataSet() {
-        return new Cloner().deepClone(this.data);
     }
 }
