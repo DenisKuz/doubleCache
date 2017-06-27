@@ -1,4 +1,4 @@
-package model;
+package exception;
 
 public class StorageOverFlowException extends Exception {
     public StorageOverFlowException(final String message){

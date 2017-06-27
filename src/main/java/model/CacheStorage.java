@@ -6,15 +6,15 @@ public interface CacheStorage<K, V> {
 
     V retrieve(final K key);
 
-    boolean isFull();
-
     void clear();
 
     int getCurrentSize();
 
-    boolean hasFreeMemory();
+    int getMaxSize();
 
     V remove(final K key);
 
-    int getMaxSize();
+    default boolean hasFreeMemory() {
+        return getMaxSize() > getCurrentSize();
+    }
 }

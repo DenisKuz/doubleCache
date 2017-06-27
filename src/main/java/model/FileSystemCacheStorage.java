@@ -12,7 +12,7 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     private Logger log = Logger.getLogger(FileSystemCacheStorage.class.getName());
 
-    private Map<K, String> keyMap;
+    private Map<K, String> fileNameMap;
 
     private final File directory;
 
@@ -24,27 +24,22 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     public FileSystemCacheStorage(final int maxSize) {
         super(maxSize);
-        this.keyMap = new HashMap<>(maxSize);
+        this.fileNameMap = new HashMap<>(maxSize);
         this.directory = new File("cache" + new Date().getTime());
         createDirectory();
     }
 
     @Override
     public void save(K key, V value) {
-        if (!isFull()) {
-            this.keyMap.put(key, key.toString() + new Date().getTime());
+        if (hasFreeMemory()) {
+            this.fileNameMap.put(key, key.toString() + new Date().getTime());
             writeToFile(value, createFile(key));
         }
     }
 
     @Override
     public V retrieve(final K key) {
-        return readFromFile(keyMap.get(key));
-    }
-
-    @Override
-    public boolean isFull() {
-        return keyMap.size() == getMaxSize();
+        return readFromFile(fileNameMap.get(key));
     }
 
     @Override
@@ -58,12 +53,7 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     @Override
     public int getCurrentSize() {
-        return this.keyMap.size();
-    }
-
-    @Override
-    public boolean hasFreeMemory() {
-        return getMaxSize() > getCurrentSize();
+        return this.fileNameMap.size();
     }
 
     @Override
@@ -82,7 +72,7 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     }
 
     private File createFile(final K key) {
-        final String fileName = keyMap.get(key);
+        final String fileName = fileNameMap.get(key);
         final File file = new File(directory.getName().concat("/").concat(fileName));
         if (!file.exists()) {
             try {

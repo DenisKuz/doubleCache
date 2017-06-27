@@ -20,7 +20,7 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     @Override
     public void save(K key, V value) {
-        if (!isFull()) {
+        if (hasFreeMemory()) {
             this.data.put(key, value);
         }
     }
@@ -31,11 +31,6 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     }
 
     @Override
-    public boolean isFull() {
-        return data.size() == getMaxSize();
-    }
-
-    @Override
     public void clear() {
         data.clear();
     }
@@ -43,11 +38,6 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     @Override
     public int getCurrentSize() {
         return data.size();
-    }
-
-    @Override
-    public boolean hasFreeMemory() {
-        return getMaxSize() > getCurrentSize();
     }
 
     @Override
