@@ -2,6 +2,7 @@ package model;
 
 public interface CacheStorage<K, V> {
 
+    // we do not need null key or null value in cache
     void save(final K key, final V value);
 
     V retrieve(final K key);

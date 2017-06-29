@@ -3,6 +3,7 @@ package service;
 import model.FileSystemCacheStorage;
 import model.MemoryCacheStorage;
 import strategy.LRUStrategy;
+import strategy.Strategy;
 
 public class CacheServiceImpl<K, V> implements CacheService<K, V> {
 
@@ -19,21 +20,39 @@ public class CacheServiceImpl<K, V> implements CacheService<K, V> {
         this.secondLevel = new CacheStrategy<>(new FileSystemCacheStorage<>(), new LRUStrategy<>());
     }
 
+    public CacheServiceImpl(final Strategy<K> firstLevelStrategy, final Strategy<K> secondLevelStrategy) {
+        this.firstLevel = new CacheStrategy<>(new MemoryCacheStorage<>(), firstLevelStrategy);
+        this.secondLevel = new CacheStrategy<>(new FileSystemCacheStorage<>(), secondLevelStrategy);
+    }
+
     @Override
     public void put(K key, V value) {
         if (!this.firstLevel.getCacheStorage().hasFreeMemory()) {
-            final V deletedValue = this.firstLevel.getCacheStorage().remove(this.firstLevel.getStrategy().kickExtraElement());
-            this.secondLevel.getCacheStorage().save(key, value);
+
+            final K keyOfDeletedElement = this.firstLevel.getStrategy().kickExtraElement();
+            final V valueOfDeletedValue = this.firstLevel.getCacheStorage().remove(keyOfDeletedElement);
+
+            this.secondLevel.getCacheStorage().save(keyOfDeletedElement, valueOfDeletedValue);
+            this.secondLevel.getStrategy().upDateRating(key);
         }
+
         this.firstLevel.getCacheStorage().save(key, value);
+        this.firstLevel.getStrategy().upDateRating(key);
     }
 
     @Override
     public V get(K key) {
         V value = this.firstLevel.getCacheStorage().retrieve(key);
+        this.firstLevel.getStrategy().upDateRating(key);
         if (value == null) {
             value = this.secondLevel.getCacheStorage().retrieve(key);
+            this.secondLevel.getStrategy().upDateRating(key);
         }
         return value;
+    }
+
+    public static void main(String...str){
+        //final Map<String,String> map = new HashMap<>();
+        //System.out.println(map.get(null));
     }
 }

@@ -20,7 +20,7 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     @Override
     public void save(K key, V value) {
-        if (hasFreeMemory()) {
+        if ((key != null && value != null) && hasFreeMemory()) {
             this.data.put(key, value);
         }
     }

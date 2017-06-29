@@ -18,6 +18,7 @@ public class LRUStrategy<K> implements Strategy<K> {
         return key;
     }
 
+    @Override
     public void upDateRating(final K key) {
         this.ratingMap.put(key, new Date());
     }

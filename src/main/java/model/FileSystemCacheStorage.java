@@ -1,12 +1,16 @@
 package model;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.*;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.util.UUID.randomUUID;
 import static org.apache.commons.io.FileUtils.cleanDirectory;
+import static org.apache.commons.io.FileUtils.getFile;
 
 public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
@@ -25,15 +29,15 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     public FileSystemCacheStorage(final int maxSize) {
         super(maxSize);
         this.fileNameMap = new HashMap<>(maxSize);
-        this.directory = new File("cache" + new Date().getTime());
+        this.directory = new File("cache_" + randomUUID());
         createDirectory();
     }
 
     @Override
     public void save(K key, V value) {
-        if (hasFreeMemory()) {
-            this.fileNameMap.put(key, key.toString() + new Date().getTime());
-            writeToFile(value, createFile(key));
+        if ((key != null && value != null) && hasFreeMemory()) {
+            final String fileName = this.fileNameMap.putIfAbsent(key, randomUUID().toString());
+            writeToFile(value, createFile(fileName));
         }
     }
 
@@ -71,9 +75,8 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
         }
     }
 
-    private File createFile(final K key) {
-        final String fileName = fileNameMap.get(key);
-        final File file = new File(directory.getName().concat("/").concat(fileName));
+    private File createFile(final String fileName) {
+        final File file = getFile(this.directory, fileName);
         if (!file.exists()) {
             try {
                 file.createNewFile();
