@@ -24,6 +24,8 @@ public class LRUStrategy<K> implements Strategy<K> {
     }
 
     private K getEarliest() {
+        //there is problem with date. Dates have been created at the same time!
+        // as the result we have null key and value
         Date date = new Date();
         K key = null;
         for (final Entry<K, Date> entry : this.ratingMap.entrySet()) {

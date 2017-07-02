@@ -7,7 +7,7 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     private Map<K, V> data;
 
-    static public final int DEFAULT_MEMORY_MAX_SIZE = 3;
+    private static final int DEFAULT_MEMORY_MAX_SIZE = 2;
 
     public MemoryCacheStorage() {
         this(DEFAULT_MEMORY_MAX_SIZE);

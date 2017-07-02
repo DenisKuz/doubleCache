@@ -20,7 +20,7 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     private final File directory;
 
-    static final public int DEFAULT_fILE_STORAGE_MAX_SIZE = 6;
+    private static final int DEFAULT_fILE_STORAGE_MAX_SIZE = 2;
 
     public FileSystemCacheStorage() {
         this(DEFAULT_fILE_STORAGE_MAX_SIZE);
@@ -36,14 +36,20 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     @Override
     public void save(K key, V value) {
         if ((key != null && value != null) && hasFreeMemory()) {
-            final String fileName = this.fileNameMap.putIfAbsent(key, randomUUID().toString());
+            //it returns null
+            this.fileNameMap.putIfAbsent(key, randomUUID().toString());
+            final String fileName = this.fileNameMap.get(key);
             writeToFile(value, createFile(fileName));
         }
     }
 
     @Override
     public V retrieve(final K key) {
-        return readFromFile(fileNameMap.get(key));
+        final String fileName  = fileNameMap.get(key);
+        if(fileName != null){
+            return readFromFile(fileNameMap.get(key));
+        }
+        return null;
     }
 
     @Override
@@ -100,7 +106,7 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     }
 
     private V readFromFile(final String fileName) {
-        File file = new File(directory.getName() + "/" + fileName);
+        File file = getFile(this.directory, fileName);
         try (FileInputStream fileInputStream = new FileInputStream(file);
              ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
             return (V) objectInputStream.readObject();
