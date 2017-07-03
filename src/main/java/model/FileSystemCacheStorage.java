@@ -1,7 +1,5 @@
 package model;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +43,8 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
 
     @Override
     public V retrieve(final K key) {
-        final String fileName  = fileNameMap.get(key);
-        if(fileName != null){
+        final String fileName = fileNameMap.get(key);
+        if (fileName != null) {
             return readFromFile(fileNameMap.get(key));
         }
         return null;
@@ -69,6 +67,11 @@ public class FileSystemCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     @Override
     public V remove(K key) {
         return null;
+    }
+
+    @Override
+    public boolean hasElement(final K key) {
+        return this.fileNameMap.containsKey(key);
     }
 
     private void createDirectory() {

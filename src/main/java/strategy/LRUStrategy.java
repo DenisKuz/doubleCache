@@ -29,7 +29,7 @@ public class LRUStrategy<K> implements Strategy<K> {
         Date date = new Date();
         K key = null;
         for (final Entry<K, Date> entry : this.ratingMap.entrySet()) {
-            if (date.compareTo(entry.getValue()) > 0) {
+            if (date.compareTo(entry.getValue()) >= 0) {
                 date = entry.getValue();
                 key = entry.getKey();
             }

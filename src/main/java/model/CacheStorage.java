@@ -15,6 +15,8 @@ public interface CacheStorage<K, V> {
 
     V remove(final K key);
 
+    boolean hasElement(K key);
+
     default boolean hasFreeMemory() {
         return getMaxSize() > getCurrentSize();
     }

@@ -44,4 +44,9 @@ public class MemoryCacheStorage<K, V> extends AbstractCacheStorage<K, V> {
     public V remove(final K key) {
         return this.data.remove(key);
     }
+
+    @Override
+    public boolean hasElement(final K key) {
+        return this.data.containsKey(key);
+    }
 }

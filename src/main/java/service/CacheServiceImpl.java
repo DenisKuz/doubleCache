@@ -27,17 +27,28 @@ public class CacheServiceImpl<K, V> implements CacheService<K, V> {
 
     @Override
     public void put(K key, V value) {
-        if (!this.firstLevel.getCacheStorage().hasFreeMemory()) {
 
-            final K keyOfDeletedElement = this.firstLevel.getStrategy().kickExtraElement();
-            final V valueOfDeletedValue = this.firstLevel.getCacheStorage().remove(keyOfDeletedElement);
+        if (this.firstLevel.getCacheStorage().hasElement(key)) {
+            this.firstLevel.getCacheStorage().save(key, value);
+        }
+        else if (this.secondLevel.getCacheStorage().hasElement(key)) {
+            this.secondLevel.getCacheStorage().save(key, value);
+        }
+        else {
+            if (!this.firstLevel.getCacheStorage().hasFreeMemory()) {
 
-            this.secondLevel.getCacheStorage().save(keyOfDeletedElement, valueOfDeletedValue);
-            this.secondLevel.getStrategy().upDateRating(key);
+                final K keyOfDeletedElement = this.firstLevel.getStrategy().kickExtraElement();
+                final V valueOfDeletedValue = this.firstLevel.getCacheStorage().remove(keyOfDeletedElement);
+
+                this.secondLevel.getCacheStorage().save(keyOfDeletedElement, valueOfDeletedValue);
+                this.secondLevel.getStrategy().upDateRating(key);
+            }
+
+            this.firstLevel.getCacheStorage().save(key, value);
+            this.firstLevel.getStrategy().upDateRating(key);
         }
 
-        this.firstLevel.getCacheStorage().save(key, value);
-        this.firstLevel.getStrategy().upDateRating(key);
+        /**/
     }
 
     @Override
@@ -49,10 +60,5 @@ public class CacheServiceImpl<K, V> implements CacheService<K, V> {
             this.secondLevel.getStrategy().upDateRating(key);
         }
         return value;
-    }
-
-    public static void main(String...str){
-        //final Map<String,String> map = new HashMap<>();
-        //System.out.println(map.get(null));
     }
 }
