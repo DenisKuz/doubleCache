@@ -2,7 +2,7 @@ package strategy;
 
 public interface Strategy<K> {
 
-    K kickExtraElement();
+    K takeKeyOfSupplantedElement();
 
     void upDateRating(final K key);
 }

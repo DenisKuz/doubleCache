@@ -12,7 +12,7 @@ public class LRUStrategy<K> implements Strategy<K> {
     }
 
     @Override
-    public K kickExtraElement() {
+    public K takeKeyOfSupplantedElement() {
         final K key = getEarliest();
         this.ratingMap.remove(key);
         return key;
